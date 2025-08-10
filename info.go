@@ -1,7 +1,9 @@
 package a2s
 
 import (
+	"encoding/hex"
 	"errors"
+	"fmt"
 )
 
 const (
@@ -112,6 +114,7 @@ func (c *Client) QueryInfo() (*ServerInfo, error) {
 	builder.WriteCString("Source Engine Query")
 
 	data, immediate, err := c.getChallenge(builder.Bytes(), A2S_INFO_RESPONSE)
+	cdata := data // Challenge data
 
 	if err != nil {
 		return nil, err
@@ -138,6 +141,8 @@ func (c *Client) QueryInfo() (*ServerInfo, error) {
 	reader := NewPacketReader(data)
 
 	if reader.ReadInt32() != -1 {
+		fmt.Printf("hex.Dump(cdata): \n%v\n", hex.Dump(cdata))
+		fmt.Printf("hex.Dump(data): \n%v\n", hex.Dump(data))
 		return nil, ErrBadPacketHeader
 	}
 
@@ -145,6 +150,8 @@ func (c *Client) QueryInfo() (*ServerInfo, error) {
 
 	header := reader.ReadUint8()
 	if header != A2S_INFO_RESPONSE {
+		fmt.Printf("hex.Dump(cdata): \n%v\n", hex.Dump(cdata))
+		fmt.Printf("hex.Dump(data): \n%v\n", hex.Dump(data))
 		return nil, ErrUnsupportedHeader
 	}
 
